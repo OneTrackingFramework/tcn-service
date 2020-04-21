@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(indexes = {
-    @Index(name = "IDX_TIMESTAMP_CREATE", columnList = "timestampCreate"),
+    @Index(name = "IDX_CREATED_AT", columnList = "createdAt"),
 })
 public class Key {
 
