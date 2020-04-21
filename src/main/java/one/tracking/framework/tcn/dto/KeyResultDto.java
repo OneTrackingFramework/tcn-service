@@ -27,7 +27,7 @@ public class KeyResultDto implements List<KeyDto> {
 
   private List<KeyDto> tcns;
 
-  private Instant requestTimestamp;
+  private Instant evalTimestamp;
 
   /**
    * @param action

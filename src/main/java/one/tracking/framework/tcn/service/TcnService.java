@@ -69,7 +69,7 @@ public class TcnService {
     final Instant instant = Instant.now();
 
     final KeyResultDto keyResult = KeyResultDto.builder()
-        .requestTimestamp(instant)
+        .evalTimestamp(instant)
         .tcns(result.stream().map(KeyDto::fromEntity).collect(Collectors.toList()))
         .build();
 
