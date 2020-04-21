@@ -4,10 +4,12 @@
 package one.tracking.framework.tcn.service;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
@@ -172,5 +174,43 @@ public class TcnService {
         keyResult,
         pageable,
         result.getTotalElements());
+  }
+
+  public void handlePush(final byte[] payload) {
+
+    if (payload.length < 68) {
+      return;
+    }
+    final String rvk = Base64.getEncoder().encodeToString(Arrays.copyOfRange(payload, 0, 32));
+    final String tck = Base64.getEncoder().encodeToString(Arrays.copyOfRange(payload, 32, 64));
+    final int j1 = bytesToInt(Arrays.copyOfRange(payload, 64, 66));
+    final int j2 = bytesToInt(Arrays.copyOfRange(payload, 66, 68));
+
+    String memo = null;
+    if (payload.length > 69) {
+      final int range = bytesToInt(Arrays.copyOfRange(payload, 69, 70));
+
+      if (range + 70 == payload.length) {
+        memo = Base64.getEncoder().encodeToString(Arrays.copyOfRange(payload, 70, range));
+      }
+
+    }
+
+    final PayloadDto payloadDto = PayloadDto.builder()
+        .rvk(rvk)
+        .tck(tck)
+        .j1(j1)
+        .j2(j2)
+        .memo(memo)
+        .build();
+
+    handlePush(payloadDto);
+  }
+
+
+  private int bytesToInt(final byte[] bytes) {
+    final short shortVal = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+    return shortVal >= 0 ? shortVal : 0x10000 + shortVal;
+
   }
 }
