@@ -4,6 +4,7 @@
 package one.tracking.framework.tcn.web;
 
 import java.time.Instant;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class TcnController {
   @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
   public void handlePush(
       @RequestBody
+      @Valid
       final PayloadDto payload) {
 
     this.service.handlePush(payload);
