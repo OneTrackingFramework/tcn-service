@@ -111,7 +111,10 @@ public class TcnService {
 
   public Page<KeyDto> getKeys(final Instant timestamp, final Pageable pageable) {
 
-    final Page<Key> result = this.keyRepository.findAllByTimestampCreateAfter(timestamp, pageable);
+    final Page<Key> result = timestamp == null
+        ? this.keyRepository.findAll(pageable)
+        : this.keyRepository.findAllByTimestampCreateAfter(timestamp, pageable);
+
     final Instant instant = Instant.now();
 
     final KeyResultDto keyResult = KeyResultDto.builder()

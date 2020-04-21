@@ -17,10 +17,6 @@ import one.tracking.framework.tcn.dto.KeyDto;
 import one.tracking.framework.tcn.dto.PayloadDto;
 import one.tracking.framework.tcn.service.TcnService;
 
-/**
- * @author Marko Voß
- *
- */
 @RestController
 @RequestMapping
 public class TcnController {
@@ -28,7 +24,7 @@ public class TcnController {
   @Autowired
   private TcnService service;
 
-  @RequestMapping
+  @RequestMapping(method = RequestMethod.POST)
   public void handlePush(
       @RequestBody
       final PayloadDto payload) {
@@ -38,7 +34,7 @@ public class TcnController {
 
   @RequestMapping(method = RequestMethod.GET)
   public Page<KeyDto> getKeys(
-      @RequestParam("ts")
+      @RequestParam(value = "ts", required = false)
       final Instant timestamp,
       @PageableDefault(page = 0, size = 20)
       // @SortDefault.SortDefaults({

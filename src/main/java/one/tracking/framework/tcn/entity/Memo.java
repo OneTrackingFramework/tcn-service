@@ -3,6 +3,7 @@
  */
 package one.tracking.framework.tcn.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -22,5 +23,6 @@ public class Memo {
   @GeneratedValue
   private Long id;
 
+  @Column(nullable = false, length = 256)
   private String value;
 }
