@@ -17,10 +17,6 @@ import one.tracking.framework.tcn.dto.KeyDto;
 import one.tracking.framework.tcn.dto.PayloadDto;
 import one.tracking.framework.tcn.service.TcnService;
 
-/**
- * @author Marko Voß
- *
- */
 @RestController
 @RequestMapping
 public class TcnController {
