@@ -11,11 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import one.tracking.framework.tcn.dto.KeyDto;
 import one.tracking.framework.tcn.dto.KeyResultDto;
 import one.tracking.framework.tcn.dto.PayloadDto;
@@ -55,15 +51,7 @@ public class TcnService {
     return Collections.emptyList();
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public Page<KeyDto> getKeys(
-      @RequestParam("ts")
-      final Instant timestamp,
-      @PageableDefault(page = 0, size = 20)
-      // @SortDefault.SortDefaults({
-      // @SortDefault(sort = "timestampCreate", direction = Sort.Direction.ASC),
-      // })
-      final Pageable pageable) {
+  public Page<KeyDto> getKeys(final Instant timestamp, final Pageable pageable) {
 
     final Page<Key> result = this.keyRepository.findAllByTimestampCreateAfter(timestamp, pageable);
     final Instant instant = Instant.now();
