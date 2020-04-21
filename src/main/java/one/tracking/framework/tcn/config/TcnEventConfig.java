@@ -21,17 +21,17 @@ import one.tracking.framework.tcn.event.TcnEvent;
 public class TcnEventConfig extends KafkaConfig {
 
   @Bean(name = "kafka.producer.TcnEvent")
-  public ProducerFactory<String, TcnEvent> producerFactory() {
+  public ProducerFactory<String, TcnEvent> tcnEventProducerFactory() {
     return new DefaultKafkaProducerFactory<>(senderConfig());
   }
 
   @Bean(name = "kafka.template.TcnEvent")
-  public KafkaTemplate<String, TcnEvent> kafkaTemplate() {
-    return new KafkaTemplate<>(producerFactory());
+  public KafkaTemplate<String, TcnEvent> tcnEventKafkaTemplate() {
+    return new KafkaTemplate<>(tcnEventProducerFactory());
   }
 
   @Bean(name = "kafka.consumer.TcnEvent")
-  public ConsumerFactory<String, TcnEvent> consumerFactory() {
+  public ConsumerFactory<String, TcnEvent> tcnEventConsumerFactory() {
     return new DefaultKafkaConsumerFactory<>(
         consumerConfig(),
         new StringDeserializer(),
@@ -39,11 +39,11 @@ public class TcnEventConfig extends KafkaConfig {
   }
 
   @Bean(name = "kafka.listener.TcnEvent")
-  public ConcurrentKafkaListenerContainerFactory<String, TcnEvent> listenerContainerFactory() {
+  public ConcurrentKafkaListenerContainerFactory<String, TcnEvent> tcnEventListenerContainerFactory() {
 
     final ConcurrentKafkaListenerContainerFactory<String, TcnEvent> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
-    factory.setConsumerFactory(consumerFactory());
+    factory.setConsumerFactory(tcnEventConsumerFactory());
     return factory;
   }
 }
