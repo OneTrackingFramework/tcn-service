@@ -11,5 +11,7 @@ import one.tracking.framework.tcn.entity.Key;
 
 public interface KeyRepository extends PagingAndSortingRepository<Key, Long> {
 
-  Page<Key> findAllByTimestampCreateAfter(Instant instant, Pageable pageable);
+  Page<Key> findAllByCreatedAtAfter(Instant instant, Pageable pageable);
+
+  void deleteByCreatedAtBefore(Instant instant);
 }

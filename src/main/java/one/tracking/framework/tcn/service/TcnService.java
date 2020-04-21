@@ -161,7 +161,7 @@ public class TcnService {
 
     final Page<Key> result = timestamp == null
         ? this.keyRepository.findAll(pageable)
-        : this.keyRepository.findAllByTimestampCreateAfter(timestamp, pageable);
+        : this.keyRepository.findAllByCreatedAtAfter(timestamp, pageable);
 
     final Instant instant = Instant.now();
 

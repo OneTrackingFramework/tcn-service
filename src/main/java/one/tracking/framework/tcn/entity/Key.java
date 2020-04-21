@@ -36,7 +36,7 @@ public class Key {
   private String tcn;
 
   @Column(nullable = false, updatable = false)
-  private Instant timestampCreate;
+  private Instant createdAt;
 
   @ManyToOne(cascade = CascadeType.ALL)
   private Memo memo;
@@ -44,7 +44,7 @@ public class Key {
   @PrePersist
   void onPrePersist() {
     if (this.id == null) {
-      setTimestampCreate(Instant.now());
+      setCreatedAt(Instant.now());
     }
   }
 }
