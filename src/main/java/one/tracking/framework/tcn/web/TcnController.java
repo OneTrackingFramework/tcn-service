@@ -33,7 +33,7 @@ public class TcnController {
     this.service.handlePush(payload);
   }
 
-  @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  @RequestMapping(method = RequestMethod.POST, consumes = MediaType.TEXT_PLAIN_VALUE)
   public void handlePush(
       @RequestBody
       final byte[] payload) {
