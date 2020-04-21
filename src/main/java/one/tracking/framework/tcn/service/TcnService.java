@@ -118,9 +118,9 @@ public class TcnService {
     try {
       final MessageDigest digest = MessageDigest.getInstance("SHA-256");
       return digest.digest(merge("H_TCK".getBytes(StandardCharsets.UTF_8), merge(rvk, tck)));
+
     } catch (final NoSuchAlgorithmException e) {
-      // Rly, java?
-      return null;
+      throw new RuntimeException(e);
     }
   }
 
@@ -143,9 +143,9 @@ public class TcnService {
 
       final MessageDigest digest = MessageDigest.getInstance("SHA-256");
       return digest.digest(merge("H_TCN".getBytes(StandardCharsets.UTF_8), merge(jByte.array(), tck)));
+
     } catch (final NoSuchAlgorithmException e) {
-      // Rly, java?
-      return null;
+      throw new RuntimeException(e);
     }
   }
 
