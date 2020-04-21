@@ -14,10 +14,16 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import one.tracking.framework.tcn.event.TcnEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import one.tracking.framework.tcn.dto.KeyDto;
 import one.tracking.framework.tcn.dto.KeyResultDto;
@@ -29,28 +35,49 @@ import one.tracking.framework.tcn.repo.MemoRepository;
 @Service
 public class TcnService {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TcnService.class);
+
   @Autowired
   private KeyRepository keyRepository;
 
   @Autowired
   private MemoRepository memoRepository;
 
+  @Autowired
+  private KafkaTemplate<String, TcnEvent> tcnEventProducer;
+
+
+  public void publishTcns(List<String> tcns, String memo) {
+
+    TcnEvent te = TcnEvent.builder().tcns(tcns).build();
+    LOG.info("-> " + tcns.get(0) + " ...");
+    this.tcnEventProducer.send("tcn", te);
+  }
+
+  @KafkaListener(topics = "tcn", containerFactory = "kafka.listener.TcnEvent")
+  public void receiveTcns(final TcnEvent tcnEvent) {
+
+    LOG.info("<- " + tcnEvent.getTcns().get(0) + " ...");
+
+    Memo memo = null;
+    if (tcnEvent.getMemo() != null && tcnEvent.getMemo().length() > 0) {
+      memo = this.memoRepository.save(Memo.builder().value(tcnEvent.getMemo()).build());
+    }
+
+    for (final String tcn : tcnEvent.getTcns()) {
+      this.keyRepository.save(Key.builder()
+              .tcn(tcn)
+              .memo(memo)
+              .build());
+    }
+  }
+
 
   public void handlePush(final PayloadDto payload) {
 
     final List<String> tcns = calculateTCNs(payload);
 
-    Memo memo = null;
-    if (payload.getMemo() != null && payload.getMemo().length() > 0) {
-      memo = this.memoRepository.save(Memo.builder().value(payload.getMemo()).build());
-    }
-
-    for (final String tcn : tcns) {
-      this.keyRepository.save(Key.builder()
-          .tcn(tcn)
-          .memo(memo)
-          .build());
-    }
+    this.publishTcns(tcns, payload.getMemo());
   }
 
   private List<String> calculateTCNs(final PayloadDto payload) {
@@ -61,7 +88,7 @@ public class TcnService {
     byte[] rvk =  Base64.getDecoder().decode(payload.getRvk());
 
     // Generate from j1 to j2
-    for (short j = payload.getJ1(); j <= payload.getJ2(); j++ ) {
+    for (int j = payload.getJ1(); j <= payload.getJ2(); j++ ) {
       // tck_{j1+1} ← H_tck(rvk || tck_{j1})            # Ratchet
       byte[] tckj = tckj = htck(rvk, lastTck);
 
@@ -76,6 +103,12 @@ public class TcnService {
     return tcns;
   }
 
+  /**
+   * H_tck(rvk || tck_{j1})
+   * @param rvk
+   * @param tck
+   * @return
+   */
   private byte[] htck(final byte[] rvk, byte[] tck) {
 
     try {
@@ -87,11 +120,22 @@ public class TcnService {
     }
   }
 
-  private byte[] htcn(final short j, byte[] tck) {
+  /**
+   * little endian unsigned 16 bits
+   * H_tcn(le_u16(j1+1) || tck_{j1+1})
+   * @param j
+   * @param tck
+   * @return
+   */
+  private byte[] htcn(final int j, byte[] tck) {
 
     try {
+
       ByteBuffer jByte = ByteBuffer.allocate(2);
-      jByte.putShort(j);
+
+      // cast int to unsigned short
+      jByte.put(0, (byte) ((j & 0xFF00L) >> 8));
+      jByte.put(1, (byte) ((j & 0x00FFL)));
 
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       return digest.digest(merge("H_TCN".getBytes(StandardCharsets.UTF_8),merge(jByte.array(), tck)));

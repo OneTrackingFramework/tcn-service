@@ -16,8 +16,8 @@ public class PayloadDto {
 
   private String rvk;
   private String tck;
-  private short j1;
-  private short j2;
+  private int j1;
+  private int j2;
   private String memo;
 
 }
